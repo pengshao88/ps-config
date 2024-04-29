@@ -1,0 +1,14 @@
+server:
+  port: 9129
+
+spring:
+  application:
+    name: psconfig-server
+
+logging:
+  level:
+    root: info
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
