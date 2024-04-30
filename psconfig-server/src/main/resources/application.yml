@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: psconfig-server
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/psconfig?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: admin_88!
+    initial-size: 2
+    max-active: 10
+    min-idle: 1
 
 logging:
   level:

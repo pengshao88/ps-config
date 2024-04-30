@@ -28,7 +28,7 @@ public class PsConfigController {
         return psConfigService.list(app, env, version, ns);
     }
 
-    @RequestMapping("/update")
+    @RequestMapping(path = "/update", method = RequestMethod.POST)
     public List<Configs> update(@RequestParam("app") String app,
                        @RequestParam("env") String env,
                        @RequestParam("version") String version,

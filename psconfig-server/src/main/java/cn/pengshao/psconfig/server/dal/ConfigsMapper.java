@@ -19,10 +19,12 @@ import java.util.List;
 @Mapper
 public interface ConfigsMapper {
 
-    @Select("select * from configs where app = #{app} and env = #{env} and version = #{version} and ns = #{ns}")
+    @Select("select app, env, version, ns, config_key as configKey, config_value as configValue from configs " +
+            "where app = #{app} and env = #{env} and version = #{version} and ns = #{ns}")
     List<Configs> list(String app, String env, String version, String ns);
 
-    @Select("select * from configs where app = #{app} and env = #{env} and version = #{version} and ns = #{ns} and config_key = #{configKey}")
+    @Select("select app, env, version, ns, config_key as configKey, config_value as configValue from configs " +
+            "where app = #{app} and env = #{env} and version = #{version} and ns = #{ns} and config_key = #{configKey}")
     Configs select(String app, String env, String version, String ns, String configKey);
 
     @Insert("insert into configs(app, env, version, ns, config_key, config_value) values(#{app}, #{env}, #{version}, #{ns}, #{configKey}, #{configValue})")
