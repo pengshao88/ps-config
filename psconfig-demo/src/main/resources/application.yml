@@ -1,0 +1,10 @@
+ps:
+    a: a00
+    b: b00
+    c: c00
+
+spring:
+    application:
+        name: psconfig-demo
+server:
+    port: 8888

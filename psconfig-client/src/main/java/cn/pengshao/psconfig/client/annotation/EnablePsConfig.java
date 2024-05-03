@@ -1,4 +1,7 @@
-package cn.pengshao.psconfig.client;
+package cn.pengshao.psconfig.client.annotation;
+
+import cn.pengshao.psconfig.client.spring.PsConfigRegistrar;
+import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
 
@@ -12,5 +15,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
+@Import(PsConfigRegistrar.class)
 public @interface EnablePsConfig {
 }
