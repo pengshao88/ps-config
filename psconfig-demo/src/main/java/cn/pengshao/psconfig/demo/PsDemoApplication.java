@@ -1,6 +1,7 @@
 package cn.pengshao.psconfig.demo;
 
 import cn.pengshao.psconfig.client.annotation.EnablePsConfig;
+import cn.pengshao.psconfig.demo.config.PsDemoConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;

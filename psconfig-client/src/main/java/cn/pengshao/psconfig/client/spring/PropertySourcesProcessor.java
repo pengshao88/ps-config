@@ -1,11 +1,14 @@
 package cn.pengshao.psconfig.client.spring;
 
+import cn.pengshao.psconfig.client.config.ConfigMeta;
 import cn.pengshao.psconfig.client.config.PsConfigService;
 import cn.pengshao.psconfig.client.config.PsConfigServiceImpl;
 import lombok.Data;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
@@ -23,11 +26,13 @@ import java.util.Map;
  * @date 2024/5/3 8:22
  */
 @Data
-public class PropertySourcesProcessor implements BeanFactoryPostProcessor, EnvironmentAware, PriorityOrdered {
+public class PropertySourcesProcessor implements BeanFactoryPostProcessor, ApplicationContextAware, EnvironmentAware, PriorityOrdered {
 
     public static final String PS_CONFIG_PROPERTY_SOURCE_NAME = "PsPropertySource";
 
     private Environment environment;
+    private ApplicationContext applicationContext;
+
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         ConfigurableEnvironment env = (ConfigurableEnvironment) environment;
@@ -35,12 +40,15 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Envir
             return;
         }
 
-        // 获取配置 TODO from config-server
-        Map<String, String> configs = new HashMap<>(3);
-        configs.put("ps.a", "a300");
-        configs.put("ps.b", "b400");
-        configs.put("ps.c", "c500");
-        PsConfigService psConfigService = new PsConfigServiceImpl(configs);
+        // 从config-server 获取配置
+        String app = env.getProperty("psconfig.env", "psrpc");
+        String configEnv = env.getProperty("psconfig.env", "dev");
+        String version = env.getProperty("psconfig.version", "v1_0_0");
+        String ns = env.getProperty("psconfig.ns", "application");
+        String configServer = env.getProperty("psconfig.configServer", "http://localhost:9129");
+        ConfigMeta configMeta = new ConfigMeta(app, configEnv, version, ns, configServer);
+
+        PsConfigService psConfigService = PsConfigService.getDefault(applicationContext, configMeta);
         CompositePropertySource compositePropertySource = new CompositePropertySource(PS_CONFIG_PROPERTY_SOURCE_NAME);
         // TODO 替换成 keyName = ns
         compositePropertySource.addPropertySource(new PsConfigPropertySource("mock_config", psConfigService));

@@ -1,4 +1,4 @@
-package cn.pengshao.psconfig.demo;
+package cn.pengshao.psconfig.demo.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
