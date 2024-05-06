@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class PsRepositoryImpl implements PsRepository {
 
-    private ConfigMeta meta;
+    private final ConfigMeta meta;
     Map<String, Long> versionMap = new HashMap<>();
     Map<String, Map<String, String>> configMap = new HashMap<>();
     ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);

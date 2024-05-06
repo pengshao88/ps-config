@@ -28,6 +28,13 @@ public class PsConfigController {
         return psConfigService.list(app, env, version, ns);
     }
 
+    @GetMapping("/listNs")
+    public List<String> listNs(@RequestParam("app") String app,
+                               @RequestParam("env") String env,
+                               @RequestParam("version") String version) {
+        return psConfigService.listNs(app, env, version);
+    }
+
     @RequestMapping(path = "/update", method = RequestMethod.POST)
     public List<Configs> update(@RequestParam("app") String app,
                        @RequestParam("env") String env,

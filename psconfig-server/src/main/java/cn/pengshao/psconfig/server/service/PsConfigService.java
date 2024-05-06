@@ -51,4 +51,7 @@ public class PsConfigService {
         return VERSIONS.getOrDefault(app + "-" + env + "-" + version + "-" + ns, -1L);
     }
 
+    public List<String> listNs(String app, String env, String version) {
+        return configsMapper.listNs(app, env, version);
+    }
 }

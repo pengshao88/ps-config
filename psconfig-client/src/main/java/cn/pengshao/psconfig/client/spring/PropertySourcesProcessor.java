@@ -2,7 +2,8 @@ package cn.pengshao.psconfig.client.spring;
 
 import cn.pengshao.psconfig.client.config.ConfigMeta;
 import cn.pengshao.psconfig.client.config.PsConfigService;
-import cn.pengshao.psconfig.client.config.PsConfigServiceImpl;
+import cn.pengshao.psconfig.client.utils.HttpInvoker;
+import com.alibaba.fastjson.TypeReference;
 import lombok.Data;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -16,8 +17,7 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * ps config property source processor
@@ -41,18 +41,22 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Appli
         }
 
         // 从config-server 获取配置
-        // TODO 先从 config-server 获取所有的 namespace or 根据 app + env + version 所有的配置
+        // TODO 加一个 common 模块 config-server 启动后 自己访问自己一次，热身
         String app = env.getProperty("psconfig.env", "psrpc");
         String configEnv = env.getProperty("psconfig.env", "dev");
         String version = env.getProperty("psconfig.version", "v1_0_0");
-        String ns = env.getProperty("psconfig.ns", "application");
         String configServer = env.getProperty("psconfig.configServer", "http://localhost:9129");
-        ConfigMeta configMeta = new ConfigMeta(app, configEnv, version, ns, configServer);
+        String listNsPath = configServer + "/listNs?app=" + app + "&env=" + configEnv + "&version=" + version;
+        List<String> nsList = HttpInvoker.httpGet(listNsPath, new TypeReference<List<String>>() {
+        });
 
-        PsConfigService psConfigService = PsConfigService.getDefault(applicationContext, configMeta);
+        // 加载多个 property source
         CompositePropertySource compositePropertySource = new CompositePropertySource(PS_CONFIG_PROPERTY_SOURCE_NAME);
-        // TODO 替换成 keyName = ns
-        compositePropertySource.addPropertySource(new PsConfigPropertySource("mock_config", psConfigService));
+        for (String ns : nsList) {
+            ConfigMeta configMeta = new ConfigMeta(app, configEnv, version, ns, configServer);
+            PsConfigService psConfigService = PsConfigService.getDefault(applicationContext, configMeta);
+            compositePropertySource.addPropertySource(new PsConfigPropertySource(ns, psConfigService));
+        }
         env.getPropertySources().addFirst(compositePropertySource);
     }
 

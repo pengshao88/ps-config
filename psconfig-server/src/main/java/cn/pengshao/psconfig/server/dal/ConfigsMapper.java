@@ -23,6 +23,9 @@ public interface ConfigsMapper {
             "where app = #{app} and env = #{env} and version = #{version} and ns = #{ns}")
     List<Configs> list(String app, String env, String version, String ns);
 
+    @Select("select distinct ns from configs where app = #{app} and env = #{env} and version = #{version}")
+    List<String> listNs(String app, String env, String version);
+
     @Select("select app, env, version, ns, config_key as configKey, config_value as configValue from configs " +
             "where app = #{app} and env = #{env} and version = #{version} and ns = #{ns} and config_key = #{configKey}")
     Configs select(String app, String env, String version, String ns, String configKey);
