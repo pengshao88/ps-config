@@ -1,7 +1,6 @@
 package cn.pengshao.psconfig.client.respository;
 
 import cn.pengshao.psconfig.client.config.ConfigMeta;
-import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 

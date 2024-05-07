@@ -1,8 +1,8 @@
 package cn.pengshao.psconfig.client.respository;
 
+import cn.pengshao.common.http.HttpInvoker;
 import cn.pengshao.psconfig.client.config.ConfigMeta;
 import cn.pengshao.psconfig.client.config.Configs;
-import cn.pengshao.psconfig.client.utils.HttpInvoker;
 import com.alibaba.fastjson.TypeReference;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class PsRepositoryImpl implements PsRepository {
     private final ConfigMeta meta;
     Map<String, Long> versionMap = new HashMap<>();
     Map<String, Map<String, String>> configMap = new HashMap<>();
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
     List<PsRepositoryChangeListener> listeners = new ArrayList<>();
 
     public PsRepositoryImpl(ConfigMeta meta) {
@@ -64,9 +64,9 @@ public class PsRepositoryImpl implements PsRepository {
         Long version = HttpInvoker.httpGet(versionPath, Long.class);
         String key = meta.genKey();
         Long oldVersion = versionMap.getOrDefault(key, -1L);
-        System.out.println("[PSCONFIG] current=" + version + ", old=" + oldVersion);
+        System.out.println("[PSCONFIG] key=" + key + " current=" + version + ", old=" + oldVersion);
         if (version > oldVersion) {
-            System.out.println("[PSCONFIG] current=" + version + ", old=" + oldVersion + " need update new configs.");
+            System.out.println("[PSCONFIG] key=" + key + " current=" + version + ", old=" + oldVersion + " need update new configs.");
             Map<String, String> config = findAll();
             configMap.put(key, config);
             versionMap.put(key, version);

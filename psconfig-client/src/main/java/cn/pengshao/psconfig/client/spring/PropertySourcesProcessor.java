@@ -1,8 +1,8 @@
 package cn.pengshao.psconfig.client.spring;
 
+import cn.pengshao.common.http.HttpInvoker;
 import cn.pengshao.psconfig.client.config.ConfigMeta;
 import cn.pengshao.psconfig.client.config.PsConfigService;
-import cn.pengshao.psconfig.client.utils.HttpInvoker;
 import com.alibaba.fastjson.TypeReference;
 import lombok.Data;
 import org.springframework.beans.BeansException;
@@ -42,12 +42,12 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Appli
 
         // 从config-server 获取配置
         // TODO 加一个 common 模块 config-server 启动后 自己访问自己一次，热身
-        String app = env.getProperty("psconfig.env", "psrpc");
+        String app = env.getProperty("psconfig.app", "psrpc");
         String configEnv = env.getProperty("psconfig.env", "dev");
         String version = env.getProperty("psconfig.version", "v1_0_0");
         String configServer = env.getProperty("psconfig.configServer", "http://localhost:9129");
         String listNsPath = configServer + "/listNs?app=" + app + "&env=" + configEnv + "&version=" + version;
-        List<String> nsList = HttpInvoker.httpGet(listNsPath, new TypeReference<List<String>>() {
+        List<String> nsList = HttpInvoker.httpGet(listNsPath, new TypeReference<>() {
         });
 
         // 加载多个 property source
