@@ -1,5 +1,7 @@
 package cn.pengshao.psconfig.client.spring;
 
+import cn.pengshao.psconfig.client.value.SpringValueProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -15,20 +17,25 @@ import java.util.Optional;
  * @Author: yezp
  * @date 2024/5/3 8:50
  */
+@Slf4j
 public class PsConfigRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        System.out.println("register PropertySourcesProcessor");
+        registerBean(registry, PropertySourcesProcessor.class);
+        registerBean(registry, SpringValueProcessor.class);
+    }
+
+    private static void registerBean(BeanDefinitionRegistry registry, Class<?> clazz) {
         Optional<String> first = Arrays.stream(registry.getBeanDefinitionNames())
-                .filter(x -> PropertySourcesProcessor.class.getName().equals(x)).findFirst();
+                .filter(x -> clazz.getName().equals(x)).findFirst();
         if (first.isPresent()) {
-            System.out.println("PropertySourcesProcessor already registered");
+            log.info("class:{} already registered", clazz.getName());
             return;
         }
 
         AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
-                .genericBeanDefinition(PropertySourcesProcessor.class).getBeanDefinition();
-        registry.registerBeanDefinition(PropertySourcesProcessor.class.getName(), beanDefinition);
+                .genericBeanDefinition(clazz).getBeanDefinition();
+        registry.registerBeanDefinition(clazz.getName(), beanDefinition);
     }
 }

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PsDemoController {
 
-    @Value("${ps.a}")
+    @Value("${ps.a}.${ps.c}")
     private String a;
 
     @Value("${ps.b}")
