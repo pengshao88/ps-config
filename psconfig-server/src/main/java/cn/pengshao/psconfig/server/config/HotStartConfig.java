@@ -1,14 +1,11 @@
 package cn.pengshao.psconfig.server.config;
 
-import cn.pengshao.common.http.HttpInvoker;
 import cn.pengshao.common.http.OkHttpInvoker;
-import com.alibaba.fastjson.TypeReference;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 /**
  * Description: TODO 改成请求 /hello 接口
@@ -16,15 +13,10 @@ import java.util.List;
  * @Author: yezp
  * @date 2024/5/7 23:12
  */
+@Slf4j
 @Configuration
 public class HotStartConfig {
 
-    @Value("${psconfig.app:psrpc}")
-    private String app;
-    @Value("${psconfig.env:dev}")
-    private String env;
-    @Value("${psconfig.version:v1_0_0}")
-    private String version;
     @Value("${server.port}")
     private int serverPort;
 
@@ -32,10 +24,10 @@ public class HotStartConfig {
     ApplicationRunner applicationRunner() {
         return args -> {
             String configServer = "http://localhost:" + serverPort;
-            String listNsPath = configServer + "/listNs?app=" + app + "&env=" + env + "&version=" + version;
-            List<String> nsList = HttpInvoker.httpGet(listNsPath, new TypeReference<>() {
-            });
-            System.out.println("application run start nsList:" + nsList);
+            String hostStartPath = configServer + "/hotStart";
+            OkHttpInvoker okHttpInvoker = new OkHttpInvoker(1000);
+            String response = okHttpInvoker.get(hostStartPath);
+            log.warn("application run hot start:" + response);
         };
     }
 

@@ -51,4 +51,9 @@ public class PsConfigController {
                         @RequestParam("ns") String ns) {
         return psConfigService.version(app, env, version, ns);
     }
+
+    @GetMapping("/hotStart")
+    public String hotStart() {
+        return "hotStart success!!!";
+    }
 }

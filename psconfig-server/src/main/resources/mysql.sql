@@ -12,3 +12,9 @@ insert into configs (app, env, version, ns, config_key, config_value)
 values ('psrpc', 'dev', 'v1_0_0', 'application', 'ps.a', 'aa100'),
        ('psrpc', 'dev', 'v1_0_0', 'application', 'ps.b', 'http://localhost:9129'),
        ('psrpc', 'dev', 'v1_0_0', 'application', 'ps.c', 'cc100');
+
+create table if not exists `locks`(
+       `id` int primary key not null,
+       `app` varchar(64) not null
+);
+insert into locks (id, app) values (1, 'psconfig-server');
