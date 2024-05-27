@@ -45,6 +45,7 @@ public class PsConfigServiceImpl implements PsConfigService {
         }
 
         // 修改数据源 PsConfigPropertySource
+        // ConfigurationPropertiesRebinder spring cloud 自动刷新
         this.config = event.config();
         // 发布事件，修改 ConfigurationProperties/@Value 配置
         System.out.println("[PSCONFIG] fire an EnvironmentChangeEvent with keys:" + keys);
