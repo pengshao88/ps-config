@@ -2,8 +2,12 @@ package cn.pengshao.psconfig.server.service;
 
 import cn.pengshao.psconfig.server.dal.ConfigsMapper;
 import cn.pengshao.psconfig.server.model.Configs;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +19,14 @@ import java.util.Map;
  * @Author: yezp
  * @date 2024/4/29 23:11
  */
+@Slf4j
 @Service
 public class PsConfigService {
 
     @Autowired
     ConfigsMapper configsMapper;
-    // TODO 干啥用？
     Map<String, Long> VERSIONS = new HashMap<>();
+    MultiValueMap<String, DeferredResult<Long>> POLL_VERSION = new LinkedMultiValueMap<>();
 
     public List<Configs> list(String app, String env, String version, String ns) {
         return configsMapper.list(app, env, version, ns);
@@ -32,9 +37,26 @@ public class PsConfigService {
     }
 
     public List<Configs> update(String app, String env, String version, String ns, Map<String, String> params) {
-        VERSIONS.put(app + "-" + env + "-" + version + "-" + ns, System.currentTimeMillis());
+        String key = app + "-" + env + "-" + version + "-" + ns;
+        Long value = System.currentTimeMillis();
+        VERSIONS.put(key, value);
         params.forEach((k, v) -> insertOrUpdate(new Configs(app, env, version, ns, k, v)));
+
+        touchDeferredResult(key, value);
         return configsMapper.list(app, env, version, ns);
+    }
+
+    private void touchDeferredResult(String nsKey, Long value) {
+        log.info("touch {}:{}", nsKey, value);
+        List<DeferredResult<Long>> deferredResults = POLL_VERSION.get(nsKey);
+        if (deferredResults == null || deferredResults.isEmpty()) {
+            return;
+        }
+
+        deferredResults.forEach(deferredResult -> {
+            // 触发 pollVersion() 方法的 finally
+            deferredResult.setResult(value);
+        });
     }
 
     private void insertOrUpdate(Configs configs) {
@@ -53,5 +75,23 @@ public class PsConfigService {
 
     public List<String> listNs(String app, String env, String version) {
         return configsMapper.listNs(app, env, version);
+    }
+
+    public DeferredResult<Long> pollVersion(String app, String env, String version, String ns) {
+        String key = app + "-" + env + "-" + version + "-" + ns;
+        log.info("poll version {} in defer.", key);
+        DeferredResult<Long> deferredResult = new DeferredResult<>();
+        deferredResult.onCompletion(() -> {
+            log.debug("{} onCompletion.", key);
+            POLL_VERSION.remove(key);
+        });
+
+        deferredResult.onTimeout(() -> {
+            log.debug("{} onTimeout.", key);
+            POLL_VERSION.remove(key);
+        });
+        POLL_VERSION.add(key, deferredResult);
+        log.debug("return defer for {}", key);
+        return deferredResult;
     }
 }

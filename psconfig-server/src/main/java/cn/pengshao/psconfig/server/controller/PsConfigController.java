@@ -4,6 +4,7 @@ import cn.pengshao.psconfig.server.model.Configs;
 import cn.pengshao.psconfig.server.service.PsConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,14 @@ public class PsConfigController {
                         @RequestParam("version") String version,
                         @RequestParam("ns") String ns) {
         return psConfigService.version(app, env, version, ns);
+    }
+
+    @GetMapping("/poll/version")
+    public DeferredResult<Long> pollVersion(@RequestParam("app") String app,
+                                      @RequestParam("env") String env,
+                                      @RequestParam("version") String version,
+                                      @RequestParam("ns") String ns) {
+        return psConfigService.pollVersion(app, env, version, ns);
     }
 
     @GetMapping("/hotStart")

@@ -1,6 +1,6 @@
 package cn.pengshao.psconfig.client.respository;
 
-import cn.pengshao.common.http.HttpInvoker;
+import cn.pengshao.common.http.OkHttpInvoker;
 import cn.pengshao.psconfig.client.config.ConfigMeta;
 import cn.pengshao.psconfig.client.config.Configs;
 import com.alibaba.fastjson.TypeReference;
@@ -27,8 +27,11 @@ public class PsRepositoryImpl implements PsRepository {
     ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
     List<PsRepositoryChangeListener> listeners = new ArrayList<>();
 
+    OkHttpInvoker httpInvoker;
+
     public PsRepositoryImpl(ConfigMeta meta) {
         this.meta = meta;
+        httpInvoker = new OkHttpInvoker(12);
         executor.scheduleWithFixedDelay(this::heatBeat, 1000, 5000, TimeUnit.MILLISECONDS);
     }
 
@@ -52,7 +55,7 @@ public class PsRepositoryImpl implements PsRepository {
         String listPath = meta.listPath();
         System.out.println("[PSCONFIG] list all configs from ps config server.");
 
-        List<Configs> configs = HttpInvoker.httpGet(listPath, new TypeReference<List<Configs>>() {
+        List<Configs> configs = httpInvoker.httpGet(listPath, new TypeReference<List<Configs>>() {
         });
         Map<String, String> resultMap = new HashMap<>();
         configs.forEach(c -> resultMap.put(c.getConfigKey(), c.getConfigValue()));
@@ -61,7 +64,7 @@ public class PsRepositoryImpl implements PsRepository {
 
     private void heatBeat() {
         String versionPath = meta.versionPath();
-        Long version = HttpInvoker.httpGet(versionPath, Long.class);
+        Long version = httpInvoker.httpGet(versionPath, Long.class);
         String key = meta.genKey();
         Long oldVersion = versionMap.getOrDefault(key, -1L);
         System.out.println("[PSCONFIG] key=" + key + " current=" + version + ", old=" + oldVersion);
