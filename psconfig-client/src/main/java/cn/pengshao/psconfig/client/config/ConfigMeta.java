@@ -33,6 +33,10 @@ public class ConfigMeta {
         return path("version");
     }
 
+    public String pollVersionPath() {
+        return path("poll/version");
+    }
+
     public String path(String context) {
         return this.configServer + "/" + context + "?app="
                 + app + "&env=" + env + "&version=" + version + "&ns=" + ns;

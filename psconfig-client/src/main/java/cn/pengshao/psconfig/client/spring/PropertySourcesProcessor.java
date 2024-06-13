@@ -41,7 +41,6 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Appli
         }
 
         // 从config-server 获取配置
-        // TODO 加一个 common 模块 config-server 启动后 自己访问自己一次，热身
         String app = env.getProperty("psconfig.app", "psrpc");
         String configEnv = env.getProperty("psconfig.env", "dev");
         String version = env.getProperty("psconfig.version", "v1_0_0");

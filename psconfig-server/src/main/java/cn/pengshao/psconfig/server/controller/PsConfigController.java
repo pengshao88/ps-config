@@ -55,10 +55,11 @@ public class PsConfigController {
 
     @GetMapping("/poll/version")
     public DeferredResult<Long> pollVersion(@RequestParam("app") String app,
-                                      @RequestParam("env") String env,
-                                      @RequestParam("version") String version,
-                                      @RequestParam("ns") String ns) {
-        return psConfigService.pollVersion(app, env, version, ns);
+                                            @RequestParam("env") String env,
+                                            @RequestParam("version") String version,
+                                            @RequestParam("ns") String ns,
+                                            @RequestParam("timestamp") long timestamp) {
+        return psConfigService.pollVersion(app, env, version, ns, timestamp);
     }
 
     @GetMapping("/hotStart")

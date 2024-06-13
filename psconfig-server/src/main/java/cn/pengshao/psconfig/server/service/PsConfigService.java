@@ -50,11 +50,13 @@ public class PsConfigService {
         log.info("touch {}:{}", nsKey, value);
         List<DeferredResult<Long>> deferredResults = POLL_VERSION.get(nsKey);
         if (deferredResults == null || deferredResults.isEmpty()) {
+            log.warn("deferredResults is null {}:{}.", nsKey, value);
             return;
         }
 
         deferredResults.forEach(deferredResult -> {
             // 触发 pollVersion() 方法的 finally
+            log.info("setResult {}:{}", nsKey, value);
             deferredResult.setResult(value);
         });
     }
@@ -77,7 +79,7 @@ public class PsConfigService {
         return configsMapper.listNs(app, env, version);
     }
 
-    public DeferredResult<Long> pollVersion(String app, String env, String version, String ns) {
+    public DeferredResult<Long> pollVersion(String app, String env, String version, String ns, long timestamp) {
         String key = app + "-" + env + "-" + version + "-" + ns;
         log.info("poll version {} in defer.", key);
         DeferredResult<Long> deferredResult = new DeferredResult<>();
@@ -92,6 +94,12 @@ public class PsConfigService {
         });
         POLL_VERSION.add(key, deferredResult);
         log.debug("return defer for {}", key);
+
+        long value = version(app, env, version, ns);
+        if (timestamp != value) {
+            // 避免更新时，刚好请求过期
+            touchDeferredResult(key, value);
+        }
         return deferredResult;
     }
 }
